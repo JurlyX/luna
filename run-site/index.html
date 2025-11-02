@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- stupid cloudmoon fix -->
+  <meta charset="UTF-8" />
+  <title>Redirecting...</title>
+  <script>
+    const target = "/cloudmoon" + window.location.pathname + window.location.search + window.location.hash;
+
+    const newTab = window.open("about:blank", "_blank");
+    if (newTab) {
+      newTab.location.href = target;
+    }
+
+    setTimeout(() => {
+      window.close();
+    }, 300);
+  </script>
+</head>
+<body style="background:#000;color:#00ffc8;font-family:sans-serif;text-align:center;margin-top:20vh">
+</body>
+</html>
