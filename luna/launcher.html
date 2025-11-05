@@ -92,7 +92,7 @@
     <img src="/luna.png" alt="Luna Logo">
   </div>
 
-  <iframe id="lunaFrame" src="/luna/"></iframe>
+  <iframe id="lunaFrame"></iframe>
 
 <script>
   const circle = document.querySelector('.progress');
@@ -101,6 +101,22 @@
   const circumference = 630;
   let progress = 0;
 
+  // Compute iframe URL with hash support
+  function getIframeSrc() {
+    const base = "/luna/";
+    const hash = window.location.hash || "";
+    return base + hash;
+  }
+
+  // Set iframe src
+  frame.src = getIframeSrc();
+
+  // Update iframe if hash changes dynamically
+  window.addEventListener("hashchange", () => {
+    frame.src = getIframeSrc();
+  });
+
+  // Animated loader
   function randomBurst() {
     const jump = Math.random() * 0.25 + 0.05;
     progress += jump;
