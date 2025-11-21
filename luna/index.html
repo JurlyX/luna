@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>so tuff zxs</title>
+
   <style>
     body {
       margin: 0;
@@ -56,23 +57,7 @@
       gap: 12px;
       width: 100%;
     }
-
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid rgba(255,255,255,0.2);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 20px;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    #fullscreenOverlay button,
-    #fullscreenOverlay input,
-    #fullscreenOverlay select {
+    #fullscreenOverlay button {
       width: 100%;
       max-width: 250px;
       margin: 6px 0;
@@ -81,45 +66,51 @@
       border-radius: 12px;
       border: none;
       color: #fff;
-      background: rgba(70,70,70,0.5);
+      background: rgba(70, 70, 70, 0.5);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
       box-shadow: 0 4px 16px rgba(0,0,0,0.4);
       cursor: pointer;
       transition: background 0.3s, transform 0.2s;
-      text-align: center;
     }
     #fullscreenOverlay button:hover {
-      background: rgba(100,100,100,0.6);
+      background: rgba(100, 100, 100, 0.6);
       transform: translateY(-2px);
     }
-
+    #fullscreenOverlay input,
+    #fullscreenOverlay select {
+      width: 100%;
+      max-width: 250px;
+      margin: 8px 0;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: none;
+      color: #fff;
+      background: rgba(60, 60, 60, 0.4);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+      text-align: center;
+    }
     #statusMessage {
-      margin-top: 15px;
+      margin-top: 20px;
       font-size: 18px;
       color: #7c6cc4;
       text-shadow: 0 2px 4px rgba(0,0,0,0.7);
     }
   </style>
 </head>
+
 <body>
   <iframe id="gameFrame" src="" title="Cloudmoon Game"></iframe>
 
-  <div id="fullscreenOverlay">
-    <div id="overlayInner">
-      <div class="spinner" id="spinner"></div>
-      <div id="stepContainer"></div>
-      <div id="statusMessage"></div>
-    </div>
-  </div>
+  <div id="fullscreenOverlay"></div>
 
-  <script>
+<script>
 (function() {
   const iframe = document.getElementById('gameFrame');
   const overlay = document.getElementById('fullscreenOverlay');
-  const stepContainer = document.getElementById('stepContainer');
-  const statusMessage = document.getElementById('statusMessage');
-
   const DEFAULT_IFRAME_PATH = '/cloudmoon/game/com.roblox.client/';
 
   function getHashPath() {
@@ -141,36 +132,28 @@
 
   overlay.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;gap:20px;">
-      <div class="spinner" style="
-        width:40px;
-        height:40px;
+      <div style="
+        width:40px;height:40px;
         border:4px solid rgba(255,255,255,0.3);
         border-top-color:#fff;
         border-radius:50%;
-        animation:spin 0.9s linear infinite;
-      "></div>
+        animation:spin .9s linear infinite;">
+      </div>
       <p style="color:#eee;font-size:16px;opacity:0.7;">Loading…</p>
     </div>
   `;
 
-  const spinnerAnimation = document.createElement('style');
-  spinnerAnimation.textContent = `
-    @keyframes spin { to { transform: rotate(360deg); } }
-  `;
-  document.head.appendChild(spinnerAnimation);
+  const a = document.createElement('style');
+  a.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
+  document.head.appendChild(a);
 
-  async function checkCompatibilitySimple() {
+  function checkCompatibilitySimple() {
     return new Promise(resolve => {
       let attempts = 0;
-
       const interval = setInterval(() => {
         attempts++;
-
         let doc = null;
-        try {
-          doc = iframe.contentDocument || iframe.contentWindow.document;
-        } catch {}
-
+        try { doc = iframe.contentDocument || iframe.contentWindow.document; } catch {}
         if (doc) {
           const btn = doc.querySelector('button.svelte-19kto5k');
           if (btn) {
@@ -179,7 +162,6 @@
             return;
           }
         }
-
         if (attempts >= 5) {
           clearInterval(interval);
           resolve(false);
@@ -200,10 +182,13 @@
   let currentStep = 0;
 
   function renderStep() {
+    const inner = document.getElementById("overlayInner");
+    const stepContainer = document.getElementById("stepContainer");
+    const statusMessage = document.getElementById("statusMessage");
+
     stepContainer.innerHTML = '';
     statusMessage.textContent = '';
     const step = steps[currentStep];
-    if (!step) return;
 
     if (step.type === 'button') {
       const btn = document.createElement('button');
@@ -251,7 +236,7 @@
       stepContainer.appendChild(pass);
 
       const disclaimer = document.createElement('div');
-      disclaimer.textContent = 'This bypass only works with premade accounts, since i cant figure out a way to bypass the google sign in :(';
+      disclaimer.textContent = 'This bypass only works with premade accounts.';
       disclaimer.style.fontSize = '14px';
       disclaimer.style.color = '#ccc';
       disclaimer.style.marginTop = '8px';
@@ -282,40 +267,27 @@
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       const btn = doc.querySelector('button.svelte-19kto5k');
       if (btn) btn.click();
-      statusMessage.textContent = 'Clicked Play';
-    } catch (e) {
-      statusMessage.textContent = 'Could not click Play';
-    }
+    } catch {}
   }
 
   async function populateServers() {
     try {
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       const sel = doc.querySelector('select.svelte-1y960i6');
-      const options = Array.from(sel.options).map(o => ({ value: o.value, text: o.textContent }));
-      if (options.length === 0) throw 'No servers';
-      return options;
+      return Array.from(sel.options).map(o => ({ value: o.value, text: o.textContent }));
     } catch {
-      statusMessage.textContent = 'Could not load servers, skipping...';
-      setTimeout(() => {
-        currentStep = steps.length - 1;
-        renderStep();
-      }, 1000);
       return [];
     }
   }
 
-  async function setServer(selectedValue) {
+  async function setServer(v) {
     try {
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       const sel = doc.querySelector('select.svelte-1y960i6');
-      sel.value = selectedValue;
+      sel.value = v;
       sel.dispatchEvent(new Event('input', { bubbles: true }));
       sel.dispatchEvent(new Event('change', { bubbles: true }));
-      statusMessage.textContent = 'Server selected';
-    } catch {
-      statusMessage.textContent = 'Could not set server';
-    }
+    } catch {}
   }
 
   async function clickSignIn() {
@@ -324,10 +296,7 @@
       const divs = Array.from(doc.querySelectorAll('div'));
       const target = divs.find(d => d.textContent.trim() === 'Sign in with password');
       if (target) target.click();
-      statusMessage.textContent = 'Clicked "Sign in with password"';
-    } catch {
-      statusMessage.textContent = 'Could not click sign in';
-    }
+    } catch {}
   }
 
   async function confirmLogin(email, password) {
@@ -336,27 +305,14 @@
       const emailField = doc.querySelector('input[placeholder="Google account email"]');
       const passwordField = doc.querySelector('input[placeholder="Password"]');
       const googleBtn = doc.querySelector('button.google-button.svelte-1y960i6');
-
       if (emailField && passwordField && googleBtn) {
-        Array.from(stepContainer.querySelectorAll('input, button, select')).forEach(el => el.disabled = true);
-
         emailField.value = email;
         passwordField.value = password;
-
         emailField.dispatchEvent(new Event('input', { bubbles: true }));
         passwordField.dispatchEvent(new Event('input', { bubbles: true }));
-
         googleBtn.click();
-        statusMessage.textContent = 'Confirmed login, loading...';
-
-        await new Promise(r => setTimeout(r, 1000));
-        Array.from(stepContainer.querySelectorAll('input, button, select')).forEach(el => el.disabled = false);
-      } else {
-        statusMessage.textContent = 'Could not find login fields';
       }
-    } catch {
-      statusMessage.textContent = 'Cannot access iframe';
-    }
+    } catch {}
   }
 
   async function playGame() {
@@ -364,14 +320,11 @@
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       const playBtn = doc.querySelector('button.confirm-button.svelte-wd4tyz');
       if (playBtn) playBtn.click();
-      statusMessage.textContent = 'Clicked Play Game';
-    } catch {
-      statusMessage.textContent = 'Cannot access iframe';
-    }
+    } catch {}
   }
 
-  checkCompatibilitySimple().then(isCompatible => {
-    if (!isCompatible) {
+  checkCompatibilitySimple().then(ok => {
+    if (!ok) {
       overlay.innerHTML = `
         <h2 style="color:#fff;text-shadow:0 2px 6px #000;">
           ❌ This is not compatible with your device.
@@ -389,11 +342,11 @@
         <div id="statusMessage"></div>
       </div>
     `;
-
     renderStep();
   });
 
 })();
-  </script>
+</script>
+
 </body>
 </html>
