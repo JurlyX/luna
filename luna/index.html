@@ -33,11 +33,10 @@
       background: rgba(30, 30, 30, 0.6);
       backdrop-filter: blur(12px) saturate(150%);
       -webkit-backdrop-filter: blur(12px) saturate(150%);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
       color: #eee;
       z-index: 2000;
       padding: 40px;
+      text-align: center;
     }
     #overlayInner {
       display: flex;
@@ -57,7 +56,23 @@
       gap: 12px;
       width: 100%;
     }
-    #fullscreenOverlay button {
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #fullscreenOverlay button,
+    #fullscreenOverlay input,
+    #fullscreenOverlay select {
       width: 100%;
       max-width: 250px;
       margin: 6px 0;
@@ -66,34 +81,21 @@
       border-radius: 12px;
       border: none;
       color: #fff;
-      background: rgba(70, 70, 70, 0.5);
+      background: rgba(70,70,70,0.5);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
       box-shadow: 0 4px 16px rgba(0,0,0,0.4);
       cursor: pointer;
       transition: background 0.3s, transform 0.2s;
-    }
-    #fullscreenOverlay button:hover {
-      background: rgba(100, 100, 100, 0.6);
-      transform: translateY(-2px);
-    }
-    #fullscreenOverlay input, #fullscreenOverlay select {
-      width: 100%;
-      max-width: 250px;
-      margin: 8px 0;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: none;
-      color: #fff;
-      background: rgba(60, 60, 60, 0.4);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
       text-align: center;
     }
+    #fullscreenOverlay button:hover {
+      background: rgba(100,100,100,0.6);
+      transform: translateY(-2px);
+    }
+
     #statusMessage {
-      margin-top: 20px;
+      margin-top: 15px;
       font-size: 18px;
       color: #7c6cc4;
       text-shadow: 0 2px 4px rgba(0,0,0,0.7);
@@ -105,6 +107,7 @@
 
   <div id="fullscreenOverlay">
     <div id="overlayInner">
+      <div class="spinner" id="spinner"></div>
       <div id="stepContainer"></div>
       <div id="statusMessage"></div>
     </div>
@@ -114,52 +117,52 @@
   (function() {
     const iframe = document.getElementById('gameFrame');
     const overlay = document.getElementById('fullscreenOverlay');
+    const spinner = document.getElementById('spinner');
     const stepContainer = document.getElementById('stepContainer');
     const statusMessage = document.getElementById('statusMessage');
 
-    // default path if hash is empty or invalid:
     const DEFAULT_IFRAME_PATH = '/cloudmoon/game/com.roblox.client/';
 
-    // --- Helpers to read & normalize the hash path ---
     function getHashPath() {
-      // location.hash includes the leading '#'
       let hash = location.hash || '';
       if (!hash) return null;
-      // strip leading '#'
       hash = hash.slice(1);
-      // If user wrote something like '#/cloudmoon/...' we keep the leading slash.
-      // If they wrote '#cloudmoon/...' add a leading slash to make it root relative.
-      if (!hash.startsWith('/')) {
-        hash = '/' + hash;
-      }
-      // decode in case URL encoded
-      try {
-        hash = decodeURIComponent(hash);
-      } catch (e) {
-        // ignore decode errors
-      }
+      if (!hash.startsWith('/')) hash = '/' + hash;
+      try { hash = decodeURIComponent(hash); } catch {}
       return hash;
     }
 
     function updateIframeSrcFromHash() {
       const path = getHashPath() || DEFAULT_IFRAME_PATH;
-      // Only update if different
-      if (iframe.src !== location.origin + path && iframe.getAttribute('src') !== path) {
-        // Use path as given (absolute path). Setting to path (starting with '/') will resolve against origin.
-        iframe.setAttribute('src', path);
-        statusMessage.textContent = 'Loaded: ' + path;
+      iframe.setAttribute('src', path);
+    }
+
+    updateIframeSrcFromHash();
+    window.addEventListener('hashchange', updateIframeSrcFromHash);
+
+    async function checkCompatibility() {
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Wait for the first expected button to appear
+        await waitFor('button.svelte-19kto5k', doc, 10000);
+
+        // Success → remove spinner and show steps
+        spinner.style.display = "none";
+        return true;
+      } catch (e) {
+        overlay.innerHTML = `
+          <h2 style="color:#fff;text-shadow:0 2px 6px #000;">
+            ❌ Luna is not compatible with your device and/or not with the wifi.
+          </h2>
+        `;
+        return false;
       }
     }
 
-    // initialize iframe src from hash (or default)
-    updateIframeSrcFromHash();
-
-    // react to future hash changes
-    window.addEventListener('hashchange', () => {
-      updateIframeSrcFromHash();
-    });
-
-    // --- The rest of your original script, unchanged except references to iframe.src at top ---
+    // -------------------------------------------------
+    // Steps System
+    // -------------------------------------------------
     const steps = [
       { type: 'button', label: 'Click Play', action: clickPlay },
       { type: 'select', label: 'Select Server', action: setServer, options: [] },
@@ -174,24 +177,31 @@
     function renderStep() {
       stepContainer.innerHTML = '';
       statusMessage.textContent = '';
+
       const step = steps[currentStep];
       if (!step) return;
+
       if (step.type === 'button') {
         const btn = document.createElement('button');
         btn.textContent = step.label;
         btn.onclick = async () => { await step.action(); nextStep(); };
         stepContainer.appendChild(btn);
-      } else if (step.type === 'select') {
+      }
+
+      else if (step.type === 'select') {
         const label = document.createElement('div');
         label.textContent = step.label;
         stepContainer.appendChild(label);
+
         const sel = document.createElement('select');
         sel.id = 'serverSelectOverlay';
         stepContainer.appendChild(sel);
+
         const btn = document.createElement('button');
         btn.textContent = 'Confirm Server';
         btn.onclick = async () => { await step.action(sel.value); nextStep(); };
         stepContainer.appendChild(btn);
+
         populateServers().then(options => {
           step.options = options;
           sel.innerHTML = '';
@@ -202,16 +212,20 @@
             sel.appendChild(o);
           });
         });
-      } else if (step.type === 'inputs') {
+      }
+
+      else if (step.type === 'inputs') {
         const email = document.createElement('input');
         email.placeholder = 'Google account email';
         email.id = 'overlayEmail';
         stepContainer.appendChild(email);
+
         const pass = document.createElement('input');
         pass.placeholder = 'Password';
         pass.type = 'password';
         pass.id = 'overlayPassword';
         stepContainer.appendChild(pass);
+
         const disclaimer = document.createElement('div');
         disclaimer.textContent = 'This bypass only works with premade accounts, since i cant figure out a way to bypass the google sign in :(';
         disclaimer.style.fontSize = '14px';
@@ -219,6 +233,7 @@
         disclaimer.style.marginTop = '8px';
         disclaimer.style.textAlign = 'center';
         stepContainer.appendChild(disclaimer);
+
         const btn = document.createElement('button');
         btn.textContent = 'Confirm Login';
         btn.onclick = async () => { await step.action(email.value, pass.value); nextStep(); };
@@ -229,10 +244,8 @@
     function nextStep() {
       currentStep++;
       if (currentStep >= steps.length) {
-        overlay.innerHTML = '<h2>🎉 Enjoy your game!</h2>';
-        // Redirect after 10 seconds
+        overlay.innerHTML = '<h2>Luna has now launched in a new tab.</h2><p>if not, please wait for it to open.</p>';
         setTimeout(() => {
-          // Keep existing launched redirect (unchanged). If you'd rather redirect relative to the hash, change this line.
           window.location.href = '/luna/launched.html';
         }, 25000);
       } else {
@@ -241,119 +254,76 @@
     }
 
     async function clickPlay() {
-      try {
-        const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
-        const btn = await waitFor('button.svelte-19kto5k', doc);
-        btn.click();
-        statusMessage.textContent = 'Clicked Play';
-      } catch (e) {
-        statusMessage.textContent = 'Could not click Play: ' + e;
-      }
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const btn = await waitFor('button.svelte-19kto5k', doc);
+      btn.click();
     }
 
     async function populateServers() {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
       try {
-        const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
         const sel = await waitFor('select.svelte-1y960i6', doc, 5000);
-        const options = Array.from(sel.options).map(o => ({ value: o.value, text: o.textContent }));
-        if (options.length === 0) throw 'No servers found';
-        return options;
-      } catch (e) {
-        statusMessage.textContent = 'Could not load servers, skipping...';
-        setTimeout(() => {
-          currentStep = steps.length - 1;
-          renderStep();
-        }, 1000);
+        return Array.from(sel.options).map(o => ({ value: o.value, text: o.textContent }));
+      } catch {
+        currentStep = steps.length - 1;
+        renderStep();
         return [];
       }
     }
 
     async function setServer(selectedValue) {
-      try {
-        const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
-        const sel = await waitFor('select.svelte-1y960i6', doc);
-        sel.value = selectedValue;
-        sel.dispatchEvent(new Event('input', { bubbles: true }));
-        sel.dispatchEvent(new Event('change', { bubbles: true }));
-        statusMessage.textContent = 'Server selected';
-      } catch (e) {
-        statusMessage.textContent = 'Could not set server';
-      }
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const sel = await waitFor('select.svelte-1y960i6', doc);
+      sel.value = selectedValue;
+      sel.dispatchEvent(new Event('input', { bubbles: true }));
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     async function clickSignIn() {
-      try {
-        const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
-        const divs = Array.from(doc.querySelectorAll('div'));
-        const target = divs.find(d => d.textContent.trim() === 'Sign in with password');
-        if (target) {
-          target.click();
-          statusMessage.textContent = 'Clicked "Sign in with password"';
-        } else {
-          statusMessage.textContent = 'Could not find "Sign in with password"';
-        }
-      } catch {
-        statusMessage.textContent = 'Cannot access iframe';
-      }
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const divs = Array.from(doc.querySelectorAll('div'));
+      const target = divs.find(d => d.textContent.trim() === 'Sign in with password');
+      if (target) target.click();
     }
 
     async function confirmLogin(email, password) {
-      try {
-        const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
-        const emailField = doc.querySelector('input[placeholder="Google account email"]');
-        const passwordField = doc.querySelector('input[placeholder="Password"]');
-        const googleBtn = doc.querySelector('button.google-button.svelte-1y960i6');
-        if (emailField && passwordField && googleBtn) {
-          Array.from(stepContainer.querySelectorAll('input, button, select')).forEach(el => el.disabled = true);
-          emailField.value = email;
-          passwordField.value = password;
-          emailField.dispatchEvent(new Event('input', { bubbles: true }));
-          passwordField.dispatchEvent(new Event('input', { bubbles: true }));
-          googleBtn.click();
-          statusMessage.textContent = 'Confirmed login, loading...';
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          Array.from(stepContainer.querySelectorAll('input, button, select')).forEach(el => el.disabled = false);
-        } else {
-          statusMessage.textContent = 'Could not find login fields';
-        }
-      } catch {
-        statusMessage.textContent = 'Cannot access iframe';
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const emailField = doc.querySelector('input[placeholder="Google account email"]');
+      const passwordField = doc.querySelector('input[placeholder="Password"]');
+      const googleBtn = doc.querySelector('button.google-button.svelte-1y960i6');
+
+      if (emailField && passwordField && googleBtn) {
+        emailField.value = email;
+        passwordField.value = password;
+        emailField.dispatchEvent(new Event('input', { bubbles: true }));
+        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+        googleBtn.click();
       }
     }
 
     async function playGame() {
-      try {
-        const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
-        const playBtn = doc.querySelector('button.confirm-button.svelte-wd4tyz');
-        if (playBtn) {
-          playBtn.click();
-          statusMessage.textContent = 'Clicked Play Game';
-        } else {
-          statusMessage.textContent = 'Could not find Play Game button';
-        }
-      } catch {
-        statusMessage.textContent = 'Cannot access iframe';
-      }
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const playBtn = doc.querySelector('button.confirm-button.svelte-wd4tyz');
+      if (playBtn) playBtn.click();
     }
 
     function waitFor(selector, doc, timeout = 15000) {
       return new Promise((resolve, reject) => {
         const start = Date.now();
-        (function poll() {
+        (function check() {
           try {
             const el = doc.querySelector(selector);
             if (el) return resolve(el);
-            if (Date.now() - start > timeout) return reject('timeout waiting for ' + selector);
-          } catch (err) {
-            // If doc.querySelector throws because doc is null/unavailable, keep retrying
-          }
-          setTimeout(poll, 250);
+          } catch {}
+          if (Date.now() - start > timeout) return reject();
+          setTimeout(check, 250);
         })();
       });
     }
 
-    // start UI
-    renderStep();
+    checkCompatibility().then(ok => {
+      if (ok) renderStep();
+    });
 
   })();
   </script>
