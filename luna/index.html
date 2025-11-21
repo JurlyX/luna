@@ -180,6 +180,14 @@ iframe {
   function renderStep() {
     stepContainer.innerHTML = '';
     statusMessage.textContent = '';
+    if(currentStep >= steps.length-1){
+      const step = steps[steps.length-1];
+      const btn = document.createElement('button');
+      btn.textContent = step.label;
+      btn.onclick = async () => { await step.action(); nextStep(); };
+      stepContainer.appendChild(btn);
+      return;
+    }
     const step = steps[currentStep];
     if (!step) return;
 
@@ -210,7 +218,8 @@ iframe {
             sel.appendChild(o);
           });
         } else {
-          setTimeout(()=>{currentStep++; renderStep();},500);
+          currentStep = steps.length-1;
+          renderStep();
         }
       });
     } else if (step.type === 'inputs') {
