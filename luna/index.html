@@ -1,116 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>so tuff zxs</title>
-
-  <style>
-    body {
-      margin: 0;
-      background: #0b0b0b;
-      font-family: "Inter", sans-serif;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    iframe {
-      width: 100vw;
-      height: 100vh;
-      border: none;
-      position: absolute;
-      z-index: 1;
-      top: 0;
-      left: 0;
-    }
-    #fullscreenOverlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(30, 30, 30, 0.6);
-      backdrop-filter: blur(12px) saturate(150%);
-      -webkit-backdrop-filter: blur(12px) saturate(150%);
-      color: #eee;
-      z-index: 2000;
-      padding: 40px;
-      text-align: center;
-    }
-    #overlayInner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      max-width: 400px;
-      width: 80%;
-      text-align: center;
-      gap: 16px;
-    }
-    #stepContainer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      width: 100%;
-    }
-    #fullscreenOverlay button {
-      width: 100%;
-      max-width: 250px;
-      margin: 6px 0;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: none;
-      color: #fff;
-      background: rgba(70, 70, 70, 0.5);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-      cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
-    }
-    #fullscreenOverlay button:hover {
-      background: rgba(100, 100, 100, 0.6);
-      transform: translateY(-2px);
-    }
-    #fullscreenOverlay input,
-    #fullscreenOverlay select {
-      width: 100%;
-      max-width: 250px;
-      margin: 8px 0;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: none;
-      color: #fff;
-      background: rgba(60, 60, 60, 0.4);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
-      text-align: center;
-    }
-    #statusMessage {
-      margin-top: 20px;
-      font-size: 18px;
-      color: #7c6cc4;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.7);
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>so tuff zxs</title>
+<style>
+body {
+  margin: 0;
+  background: #0b0b0b;
+  font-family: "Inter", sans-serif;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+iframe {
+  width: 100vw;
+  height: 100vh;
+  border: none;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+}
+#fullscreenOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  color: #eee;
+  z-index: 2000;
+  padding: 40px;
+  text-align: center;
+  flex-direction: column;
+}
+#overlayInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 400px;
+  width: 80%;
+  text-align: center;
+  gap: 16px;
+}
+#stepContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+#fullscreenOverlay button {
+  width: 100%;
+  max-width: 250px;
+  margin: 6px 0;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: none;
+  color: #fff;
+  background: rgba(70, 70, 70, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+#fullscreenOverlay button:hover {
+  background: rgba(100, 100, 100, 0.6);
+  transform: translateY(-2px);
+}
+#fullscreenOverlay input, #fullscreenOverlay select {
+  width: 100%;
+  max-width: 250px;
+  margin: 8px 0;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: none;
+  color: #fff;
+  background: rgba(60, 60, 60, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+  text-align: center;
+}
+#statusMessage {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #7c6cc4;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+}
+.spinner {
+  border: 6px solid rgba(255,255,255,0.2);
+  border-top: 6px solid #7c6cc4;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
 </head>
-
 <body>
-  <iframe id="gameFrame" src="" title="Cloudmoon Game"></iframe>
-
-  <div id="fullscreenOverlay"></div>
-
+<iframe id="gameFrame" src="" title="Cloudmoon"></iframe>
+<div id="fullscreenOverlay">
+  <div id="overlayInner">
+    <div class="spinner" id="loadingSpinner"></div>
+    <div id="stepContainer"></div>
+    <div id="statusMessage"></div>
+  </div>
+</div>
 <script>
 (function() {
   const iframe = document.getElementById('gameFrame');
   const overlay = document.getElementById('fullscreenOverlay');
+  const stepContainer = document.getElementById('stepContainer');
+  const statusMessage = document.getElementById('statusMessage');
+  const spinner = document.getElementById('loadingSpinner');
+
   const DEFAULT_IFRAME_PATH = '/cloudmoon/game/com.roblox.client/';
 
   function getHashPath() {
@@ -130,44 +150,16 @@
   updateIframeSrcFromHash();
   window.addEventListener('hashchange', updateIframeSrcFromHash);
 
-  overlay.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;gap:20px;">
-      <div style="
-        width:40px;height:40px;
-        border:4px solid rgba(255,255,255,0.3);
-        border-top-color:#fff;
-        border-radius:50%;
-        animation:spin .9s linear infinite;">
-      </div>
-      <p style="color:#eee;font-size:16px;opacity:0.7;">Loading…</p>
-    </div>
-  `;
-
-  const a = document.createElement('style');
-  a.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
-  document.head.appendChild(a);
-
-  function checkCompatibilitySimple() {
-    return new Promise(resolve => {
-      let attempts = 0;
-      const interval = setInterval(() => {
-        attempts++;
-        let doc = null;
-        try { doc = iframe.contentDocument || iframe.contentWindow.document; } catch {}
-        if (doc) {
-          const btn = doc.querySelector('button.svelte-19kto5k');
-          if (btn) {
-            clearInterval(interval);
-            resolve(true);
-            return;
-          }
-        }
-        if (attempts >= 5) {
-          clearInterval(interval);
-          resolve(false);
-        }
-      }, 1000);
-    });
+  async function waitForButton(maxSeconds = 5) {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    for (let i=0;i<maxSeconds;i++) {
+      try {
+        const btn = doc.querySelector('button.svelte-19kto5k');
+        if (btn) return true;
+      } catch {}
+      await new Promise(r => setTimeout(r,1000));
+    }
+    return false;
   }
 
   const steps = [
@@ -182,67 +174,58 @@
   let currentStep = 0;
 
   function renderStep() {
-    const inner = document.getElementById("overlayInner");
-    const stepContainer = document.getElementById("stepContainer");
-    const statusMessage = document.getElementById("statusMessage");
-
     stepContainer.innerHTML = '';
     statusMessage.textContent = '';
     const step = steps[currentStep];
+    if (!step) return;
 
     if (step.type === 'button') {
       const btn = document.createElement('button');
       btn.textContent = step.label;
       btn.onclick = async () => { await step.action(); nextStep(); };
       stepContainer.appendChild(btn);
-    }
-
-    else if (step.type === 'select') {
+    } else if (step.type === 'select') {
       const label = document.createElement('div');
       label.textContent = step.label;
       stepContainer.appendChild(label);
-
       const sel = document.createElement('select');
       sel.id = 'serverSelectOverlay';
       stepContainer.appendChild(sel);
-
       const btn = document.createElement('button');
       btn.textContent = 'Confirm Server';
       btn.onclick = async () => { await step.action(sel.value); nextStep(); };
       stepContainer.appendChild(btn);
-
       populateServers().then(options => {
         step.options = options;
         sel.innerHTML = '';
-        options.forEach(opt => {
-          const o = document.createElement('option');
-          o.value = opt.value;
-          o.textContent = opt.text;
-          sel.appendChild(o);
-        });
+        if(options.length>0){
+          options.forEach(opt => {
+            const o = document.createElement('option');
+            o.value = opt.value;
+            o.textContent = opt.text;
+            sel.appendChild(o);
+          });
+        } else {
+          setTimeout(()=>{currentStep++; renderStep();},500);
+        }
       });
-    }
-
-    else if (step.type === 'inputs') {
+    } else if (step.type === 'inputs') {
       const email = document.createElement('input');
       email.placeholder = 'Google account email';
       email.id = 'overlayEmail';
       stepContainer.appendChild(email);
-
       const pass = document.createElement('input');
       pass.placeholder = 'Password';
       pass.type = 'password';
       pass.id = 'overlayPassword';
       stepContainer.appendChild(pass);
-
       const disclaimer = document.createElement('div');
-      disclaimer.textContent = 'This bypass only works with premade accounts.';
+      disclaimer.textContent = 'This bypass only works with premade accounts, since i cant figure out a way to bypass the google sign in :(';
       disclaimer.style.fontSize = '14px';
       disclaimer.style.color = '#ccc';
       disclaimer.style.marginTop = '8px';
       disclaimer.style.textAlign = 'center';
       stepContainer.appendChild(disclaimer);
-
       const btn = document.createElement('button');
       btn.textContent = 'Confirm Login';
       btn.onclick = async () => { await step.action(email.value, pass.value); nextStep(); };
@@ -253,10 +236,8 @@
   function nextStep() {
     currentStep++;
     if (currentStep >= steps.length) {
-      overlay.innerHTML = '<h2>Luna has now launched in a new tab.</h2><p>if not, please wait for it to open.</p>';
-      setTimeout(() => {
-        window.location.href = '/luna/launched.html';
-      }, 25000);
+      overlay.innerHTML = '<h2>Enjoy your cloud game using LUNA!</h2>';
+      setTimeout(()=>{window.location.href='/luna/launched.html';},25000);
     } else {
       renderStep();
     }
@@ -266,87 +247,76 @@
     try {
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       const btn = doc.querySelector('button.svelte-19kto5k');
-      if (btn) btn.click();
-    } catch {}
+      if(btn) {btn.click(); statusMessage.textContent='Clicked Play';}
+      else statusMessage.textContent='Could not click Play';
+    } catch {statusMessage.textContent='Cannot access iframe';}
   }
 
   async function populateServers() {
     try {
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       const sel = doc.querySelector('select.svelte-1y960i6');
-      return Array.from(sel.options).map(o => ({ value: o.value, text: o.textContent }));
-    } catch {
-      return [];
-    }
+      const options = Array.from(sel.options).map(o=>({value:o.value,text:o.textContent}));
+      return options;
+    } catch { return []; }
   }
 
-  async function setServer(v) {
+  async function setServer(selectedValue) {
     try {
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       const sel = doc.querySelector('select.svelte-1y960i6');
-      sel.value = v;
-      sel.dispatchEvent(new Event('input', { bubbles: true }));
-      sel.dispatchEvent(new Event('change', { bubbles: true }));
-    } catch {}
+      if(sel){ sel.value=selectedValue; sel.dispatchEvent(new Event('input',{bubbles:true})); sel.dispatchEvent(new Event('change',{bubbles:true})); statusMessage.textContent='Server selected';}
+    } catch { statusMessage.textContent='Could not set server';}
   }
 
   async function clickSignIn() {
     try {
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       const divs = Array.from(doc.querySelectorAll('div'));
-      const target = divs.find(d => d.textContent.trim() === 'Sign in with password');
-      if (target) target.click();
-    } catch {}
+      const target = divs.find(d=>d.textContent.trim()==='Sign in with password');
+      if(target){target.click(); statusMessage.textContent='Clicked "Sign in with password"';}
+      else statusMessage.textContent='Could not find "Sign in with password"';
+    } catch {statusMessage.textContent='Cannot access iframe';}
   }
 
-  async function confirmLogin(email, password) {
-    try {
+  async function confirmLogin(email,password){
+    try{
       const doc = iframe.contentDocument || iframe.contentWindow.document;
-      const emailField = doc.querySelector('input[placeholder="Google account email"]');
-      const passwordField = doc.querySelector('input[placeholder="Password"]');
-      const googleBtn = doc.querySelector('button.google-button.svelte-1y960i6');
-      if (emailField && passwordField && googleBtn) {
-        emailField.value = email;
-        passwordField.value = password;
-        emailField.dispatchEvent(new Event('input', { bubbles: true }));
-        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+      const emailField=doc.querySelector('input[placeholder="Google account email"]');
+      const passwordField=doc.querySelector('input[placeholder="Password"]');
+      const googleBtn=doc.querySelector('button.google-button.svelte-1y960i6');
+      if(emailField&&passwordField&&googleBtn){
+        Array.from(stepContainer.querySelectorAll('input, button, select')).forEach(el=>el.disabled=true);
+        emailField.value=email;
+        passwordField.value=password;
+        emailField.dispatchEvent(new Event('input',{bubbles:true}));
+        passwordField.dispatchEvent(new Event('input',{bubbles:true}));
         googleBtn.click();
-      }
-    } catch {}
+        statusMessage.textContent='Confirmed login, loading...';
+        await new Promise(r=>setTimeout(r,1000));
+        Array.from(stepContainer.querySelectorAll('input, button, select')).forEach(el=>el.disabled=false);
+      } else {statusMessage.textContent='Could not find login fields';}
+    } catch {statusMessage.textContent='Cannot access iframe';}
   }
 
-  async function playGame() {
-    try {
+  async function playGame(){
+    try{
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       const playBtn = doc.querySelector('button.confirm-button.svelte-wd4tyz');
-      if (playBtn) playBtn.click();
-    } catch {}
+      if(playBtn){playBtn.click(); statusMessage.textContent='Clicked Play Game';}
+      else statusMessage.textContent='Could not find Play Game button';
+    } catch {statusMessage.textContent='Cannot access iframe';}
   }
 
-  checkCompatibilitySimple().then(ok => {
-    if (!ok) {
-      overlay.innerHTML = `
-        <h2 style="color:#fff;text-shadow:0 2px 6px #000;">
-          ❌ This is not compatible with your device.
-        </h2>
-        <p style="opacity:0.7;margin-top:10px;">
-          The required interface could not be detected.
-        </p>
-      `;
-      return;
-    }
+  async function start() {
+    const ok = await waitForButton(5);
+    spinner.style.display='none';
+    if(ok) renderStep();
+    else overlay.innerHTML='<h2 style="color:#fff;text-shadow:0 2px 6px #000;">❌ Luna is not compatible with your device.</h2>';
+  }
 
-    overlay.innerHTML = `
-      <div id="overlayInner">
-        <div id="stepContainer"></div>
-        <div id="statusMessage"></div>
-      </div>
-    `;
-    renderStep();
-  });
-
+  start();
 })();
 </script>
-
 </body>
 </html>
