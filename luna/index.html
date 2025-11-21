@@ -150,16 +150,20 @@ iframe {
   updateIframeSrcFromHash();
   window.addEventListener('hashchange', updateIframeSrcFromHash);
 
-  async function waitForButton(maxSeconds = 5) {
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    for (let i=0;i<maxSeconds;i++) {
-      try {
-        const btn = doc.querySelector('button.svelte-19kto5k');
-        if (btn) return true;
-      } catch {}
-      await new Promise(r => setTimeout(r,1000));
-    }
-    return false;
+  function pollForButton(doc, selector, attempts = 5, interval = 1000) {
+    return new Promise(resolve => {
+      let tries = 0;
+      const check = () => {
+        try {
+          const btn = doc.querySelector(selector);
+          if (btn) return resolve(true);
+        } catch {}
+        tries++;
+        if (tries >= attempts) return resolve(false);
+        setTimeout(check, interval);
+      };
+      check();
+    });
   }
 
   const steps = [
@@ -308,14 +312,13 @@ iframe {
     } catch {statusMessage.textContent='Cannot access iframe';}
   }
 
-  async function start() {
-    const ok = await waitForButton(5);
+  iframe.addEventListener('load', async () => {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    const found = await pollForButton(doc, 'button.svelte-19kto5k', 5, 1000);
     spinner.style.display='none';
-    if(ok) renderStep();
+    if(found) renderStep();
     else overlay.innerHTML='<h2 style="color:#fff;text-shadow:0 2px 6px #000;">❌ Luna is not compatible with your device.</h2>';
-  }
-
-  start();
+  });
 })();
 </script>
 </body>
